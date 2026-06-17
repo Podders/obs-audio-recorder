@@ -6,23 +6,62 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(OBS_STUDIO_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/obs-studio" CACHE PATH "Path to the vendored OBS Studio source tree")
+include(FetchContent)
 
-if(NOT EXISTS "${OBS_STUDIO_SOURCE_DIR}/libobs/obs.h")
-  message(FATAL_ERROR "OBS Studio source tree not found at ${OBS_STUDIO_SOURCE_DIR}")
+if(POLICY CMP0169)
+  cmake_policy(SET CMP0169 OLD)
 endif()
+
+set(OBS_STUDIO_SOURCE_DIR "" CACHE PATH "Path to a local OBS Studio source tree or SDK checkout")
+set(OBS_STUDIO_VERSION "31.1.2" CACHE STRING "OBS Studio source version used when fetching dependencies")
+
+if(OBS_STUDIO_SOURCE_DIR AND EXISTS "${OBS_STUDIO_SOURCE_DIR}/libobs/obs.h")
+  set(_obs_studio_source_dir "${OBS_STUDIO_SOURCE_DIR}")
+else()
+  message(STATUS "Fetching OBS Studio ${OBS_STUDIO_VERSION} source tree")
+  FetchContent_Declare(obs_studio_source
+    GIT_REPOSITORY https://github.com/obsproject/obs-studio.git
+    GIT_TAG ${OBS_STUDIO_VERSION}
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+  )
+  FetchContent_Populate(obs_studio_source)
+  set(_obs_studio_source_dir "${obs_studio_source_SOURCE_DIR}")
+endif()
+
+if(APPLE)
+  set(OBS_INSTALL_PREFIX "/Applications/OBS.app/Contents")
+  set(OBS_DATA_PATH "Resources")
+elseif(WIN32)
+  set(OBS_INSTALL_PREFIX "")
+  set(OBS_DATA_PATH "data")
+else()
+  set(OBS_INSTALL_PREFIX "")
+  set(OBS_DATA_PATH "share/obs")
+endif()
+set(OBS_PLUGIN_PATH "obs-plugins")
+set(OBS_PLUGIN_DESTINATION "obs-plugins/64bit")
+set(OBS_RELEASE_CANDIDATE 0)
+set(OBS_BETA 0)
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/obsconfig.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/generated/obsconfig.h"
+  @ONLY
+)
 
 add_library(obs-audio-recorder MODULE
   src/main.cpp
 )
 
 target_include_directories(obs-audio-recorder PRIVATE
-  "${OBS_STUDIO_SOURCE_DIR}/libobs"
-  "${OBS_STUDIO_SOURCE_DIR}/libobs/util"
-  "${OBS_STUDIO_SOURCE_DIR}/libobs/callback"
-  "${OBS_STUDIO_SOURCE_DIR}/libobs/graphics"
-  "${OBS_STUDIO_SOURCE_DIR}/libobs/media-io"
-  "${OBS_STUDIO_SOURCE_DIR}/frontend/api"
+  "${CMAKE_CURRENT_BINARY_DIR}/generated"
+  "${_obs_studio_source_dir}/libobs"
+  "${_obs_studio_source_dir}/libobs/util"
+  "${_obs_studio_source_dir}/libobs/callback"
+  "${_obs_studio_source_dir}/libobs/graphics"
+  "${_obs_studio_source_dir}/libobs/media-io"
+  "${_obs_studio_source_dir}/frontend/api"
 )
 
 target_compile_definitions(obs-audio-recorder PRIVATE

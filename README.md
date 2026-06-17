@@ -28,6 +28,8 @@ This project is the replacement for the earlier vinyl-reel plugin.
 
 Windows support is now being wired in alongside the macOS build.
 
+- By default CMake fetches the OBS Studio `31.1.2` source tree at configure time so the build stays pinned to the target OBS release without vendoring the repo.
+- You can override that with `-DOBS_STUDIO_SOURCE_DIR=/path/to/obs-studio` if you already have a local checkout or SDK tree.
 - Set `OBS_LIBOBS_LIBRARY` and `OBS_FRONTEND_API_LIBRARY` to the import libraries from an OBS build or SDK.
 - Set `QT_PREFIX` to your Qt installation prefix if CMake does not find it automatically.
 - Build with `pwsh scripts/build.ps1`.
