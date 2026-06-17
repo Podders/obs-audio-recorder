@@ -1,6 +1,6 @@
 # OBS Audio Recorder
 
-This project is the replacement for the earlier vinyl-reel plugin.
+This project is the OBS audio recorder plugin.
 
 ## Scope discussed so far
 
@@ -24,15 +24,23 @@ This project is the replacement for the earlier vinyl-reel plugin.
 - Install into OBS: `bash scripts/install-to-obs.sh`
 - Build, install, and launch OBS: `bash scripts/dev-obs.sh`
 
+## CI Build
+
+The GitHub release pipeline now mirrors the sibling project:
+
+- `ci/CMakeLists.txt` is the build entrypoint for CI.
+- `ci/buildspec.json` pins OBS Studio `31.1.2` and the matching `obs-deps` / Qt6 bundles.
+- `.github/workflows/release.yml` stages the plugin into a release prefix and publishes Windows artifacts on tagged builds.
+- `scripts/build-ci.ps1` reproduces the Windows CI build locally from the same `ci/` tree.
+
 ## Windows
 
 Windows support is now being wired in alongside the macOS build.
 
-- By default CMake fetches the OBS Studio `31.1.2` source tree at configure time so the build stays pinned to the target OBS release without vendoring the repo.
-- You can override that with `-DOBS_STUDIO_SOURCE_DIR=/path/to/obs-studio` if you already have a local checkout or SDK tree.
-- Set `OBS_LIBOBS_LIBRARY` and `OBS_FRONTEND_API_LIBRARY` to the import libraries from an OBS build or SDK.
-- Set `QT_PREFIX` to your Qt installation prefix if CMake does not find it automatically.
+- For local one-off builds, `scripts/build.ps1` still uses the lean root-level CMake path.
+- For CI-style Windows builds, use the `ci/` tree; it bootstraps OBS sources and deps automatically from the pinned release assets.
 - Build with `pwsh scripts/build.ps1`.
+- Build the CI-style Windows path with `pwsh scripts/build-ci.ps1`.
 - Install into OBS with `pwsh scripts/install-to-obs.ps1` after setting `OBS_INSTALL_DIR` to the OBS install root.
 
 The Windows install layout uses the standard OBS plugin locations:

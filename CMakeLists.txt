@@ -69,6 +69,7 @@ target_compile_definitions(obs-audio-recorder PRIVATE
 )
 
 if(APPLE)
+  set(BUNDLE_ID "dev.stevepodmore.obs-audio-recorder")
   set(QTBASE_PREFIX "/usr/local/opt/qtbase" CACHE PATH "Qt base prefix used for headers")
 
   file(GLOB _qt_core_header_version_dirs LIST_DIRECTORIES true

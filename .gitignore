@@ -1,3 +1,10 @@
 build/
+build_*/
+.deps/
+ci/.deps/
+.cache/
+.github/workflows/*.tmp
 .idea/
+artifacts/
+release/
 crashlog.txt

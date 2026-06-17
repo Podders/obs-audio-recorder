@@ -7,7 +7,7 @@
   <key>CFBundleExecutable</key>
   <string>obs-audio-recorder</string>
   <key>CFBundleIdentifier</key>
-  <string>dev.stevepodmore.obs-audio-recorder</string>
+  <string>@BUNDLE_ID@</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
@@ -20,4 +20,3 @@
   <string>@PROJECT_VERSION@</string>
 </dict>
 </plist>
-

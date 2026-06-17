@@ -139,12 +139,11 @@ public:
 		}
 
 		const uint32_t channels = std::max<uint32_t>(1, get_audio_channels(speakers));
-		const struct audio_convert_info conversion = {
-			.samples_per_sec = sample_rate,
-			.format = AUDIO_FORMAT_FLOAT,
-			.speakers = speakers,
-			.allow_clipping = false,
-		};
+		struct audio_convert_info conversion {};
+		conversion.samples_per_sec = sample_rate;
+		conversion.format = AUDIO_FORMAT_FLOAT;
+		conversion.speakers = speakers;
+		conversion.allow_clipping = false;
 
 		const QString base_name = currentRecordingBaseName();
 		const QString final_dir = output_dir.isEmpty() ? defaultOutputDirectory() : output_dir;

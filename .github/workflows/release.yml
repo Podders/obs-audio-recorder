@@ -1,0 +1,131 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-2022
+    env:
+      OBS_AUDIO_RECORDER_INSTALL_PREFIX: ${{ github.workspace }}\release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine Version
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -match '^v(.+)$') {
+            $Version = $Matches[1]
+          } else {
+            $Version = "0.1.0-dev.$env:GITHUB_RUN_NUMBER"
+          }
+          "OBS_AUDIO_RECORDER_VERSION=$Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Configure
+        shell: pwsh
+        run: cmake -S ci -B build_windows -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX="$env:OBS_AUDIO_RECORDER_INSTALL_PREFIX"
+
+      - name: Build
+        shell: pwsh
+        run: cmake --build build_windows --config RelWithDebInfo --parallel
+
+      - name: Install
+        shell: pwsh
+        run: cmake --install build_windows --config RelWithDebInfo
+
+      - name: Prune Host OBS DLLs
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $BinDir = Join-Path (Get-Location) 'release/obs-audio-recorder/bin/64bit'
+          Remove-Item (Join-Path $BinDir 'obs.dll') -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $BinDir 'obs-frontend-api.dll') -Force -ErrorAction SilentlyContinue
+
+      - name: Add VC Runtime DLLs
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $BinDir = Join-Path (Get-Location) 'release/obs-audio-recorder/bin/64bit'
+          $System32 = Join-Path $env:WINDIR 'System32'
+          foreach ($Dll in 'vcruntime140.dll', 'vcruntime140_1.dll', 'msvcp140.dll', 'msvcp140_1.dll', 'msvcp140_2.dll') {
+            $Source = Join-Path $System32 $Dll
+            if (-not (Test-Path $Source)) {
+              throw "Missing runtime DLL: $Source"
+            }
+            Copy-Item $Source $BinDir -Force
+          }
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $RootDir = Get-Location
+          $ReleaseDir = Join-Path $RootDir 'release'
+          $ArtifactDir = Join-Path $RootDir 'artifacts'
+          New-Item -ItemType Directory -Force -Path $ArtifactDir | Out-Null
+          $ZipPath = Join-Path $ArtifactDir "obs-audio-recorder-$env:OBS_AUDIO_RECORDER_VERSION-windows.zip"
+          if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
+          Compress-Archive -Path (Join-Path $ReleaseDir '*') -DestinationPath $ZipPath -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: obs-audio-recorder-windows
+          path: artifacts/obs-audio-recorder-*.zip
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Get-Command ISCC.exe -ErrorAction SilentlyContinue)) {
+            choco install innosetup -y --no-progress
+          }
+
+      - name: Build Installer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $Version = (Get-Content -Path ci/buildspec.json -Raw | ConvertFrom-Json).version
+          .\scripts\package-windows-installer.ps1 -Version $Version
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: obs-audio-recorder-windows-installer
+          path: artifacts/obs-audio-recorder-*windows-setup.exe
+
+  release:
+    name: Publish Release
+    needs:
+      - build-windows
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: obs-audio-recorder-windows
+          path: dist
+
+      - name: Download Windows installer
+        uses: actions/download-artifact@v4
+        with:
+          name: obs-audio-recorder-windows-installer
+          path: dist
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/obs-audio-recorder-*windows.zip
+            dist/obs-audio-recorder-*windows-setup.exe
+          draft: false
+          generate_release_notes: true
