@@ -24,4 +24,18 @@ This project is the replacement for the earlier vinyl-reel plugin.
 - Install into OBS: `bash scripts/install-to-obs.sh`
 - Build, install, and launch OBS: `bash scripts/dev-obs.sh`
 
+## Windows
+
+Windows support is now being wired in alongside the macOS build.
+
+- Set `OBS_LIBOBS_LIBRARY` and `OBS_FRONTEND_API_LIBRARY` to the import libraries from an OBS build or SDK.
+- Set `QT_PREFIX` to your Qt installation prefix if CMake does not find it automatically.
+- Build with `pwsh scripts/build.ps1`.
+- Install into OBS with `pwsh scripts/install-to-obs.ps1` after setting `OBS_INSTALL_DIR` to the OBS install root.
+
+The Windows install layout uses the standard OBS plugin locations:
+
+- `obs-plugins/64bit/obs-audio-recorder.dll`
+- `data/obs-plugins/obs-audio-recorder/`
+
 The current plugin skeleton registers `Tools -> Audio Record`, opens a docked settings panel, persists the selected audio channels, output folder, and combine mode, and records the chosen OBS internal audio channels to WAV.
