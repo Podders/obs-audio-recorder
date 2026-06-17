@@ -1,0 +1,64 @@
+{
+    "dependencies": {
+        "prebuilt": {
+            "version": "2025-07-11",
+            "baseUrl": "https://github.com/obsproject/obs-deps/releases/download",
+            "label": "Pre-Built obs-deps",
+            "hashes": {
+                "macos-universal": "495687e63383d1a287684b6e2e9bfe246bb8f156fe265926afb1a325af1edd2a",
+                "windows-x64": "c8c642c1070dc31ce9a0f1e4cef5bb992f4bff4882255788b5da12129e85caa7",
+                "windows-x86": "85e3503d254abbdd1155b058cb7df14da33b862d5a3c058c728456f71a69841b",
+                "windows-arm64": "f581cc61e8f734a8b12d485fc8662a408ca59d222814e4b37bce115bd442fb04"
+            }
+        },
+        "qt6": {
+            "version": "2025-07-11",
+            "baseUrl": "https://github.com/obsproject/obs-deps/releases/download",
+            "label": "Pre-Built Qt6",
+            "hashes": {
+                "macos-universal": "d3f5f04b6ea486e032530bdf0187cbda9a54e0a49621a4c8ba984c5023998867",
+                "windows-x64": "0e76bf0555dd5382838850b748d3dcfab44a1e1058441309ab54e1a65b156d0a",
+                "windows-arm64": "7aab240504931f32ea8e8d208a912a0d6ddbd78c16858f2e559c7c9b29ab9326"
+            },
+            "debugSymbols": {
+                "windows-x64": "11b7be92cf66a273299b8f3515c07a5cfb61614b59a4e67f7fc5ecba5e2bdf21",
+                "windows-arm64": "884ae08291b5c87d83a7b0004ea8db356530c1f4ff9bdc814b5d599a8d28a152"
+            }
+        },
+        "cef": {
+            "version": "6533",
+            "baseUrl": "https://cdn-fastly.obsproject.com/downloads",
+            "label": "Chromium Embedded Framework",
+            "hashes": {
+                "macos-x86_64": "94ff9dffd60a83a3cd30851eb5b55c1c8d00e7626bd2b8b22d332fc013643105",
+                "macos-arm64": "7c6c1c3706e08f470fb09c57bcfa49e760ba4a00dc59467e8c2c0d83bc99f0d5",
+                "ubuntu-x86_64": "df38ef6d8078895953d224a58dd811b83110b4f8644c5cd2b6246d04b0023ee6",
+                "ubuntu-aarch64": "b1ebcedbe63657c7f38a4d547398a4759544f75d955777eea386052abc9c9228",
+                "windows-x64": "922efbda1f2f8be9e5b2754d878a14d90afc81f04e94fc9101a7513e2b5cecc1",
+                "windows-arm64": "df9df4bd85826b4c071c6db404fd59cf93efd9c58ec3ab64e204466ae19bb02a"
+            },
+            "revision": {
+                "macos-x86_64": 4,
+                "macos-arm64": 4,
+                "ubuntu-x86_64": 5,
+                "ubuntu-aarch64": 5,
+                "windows-x64": 2
+            }
+        }
+    },
+    "tools": {
+        "sparkle": {
+            "version": "2.6.4",
+            "baseUrl": "https://github.com/sparkle-project/Sparkle/releases/download",
+            "label": "Sparkle 2",
+            "hash": "50612a06038abc931f16011d7903b8326a362c1074dabccb718404ce8e585f0b"
+        },
+        "ccache-win": {
+            "version": "4.8.1",
+            "baseUrl": "https://github.com/ccache/ccache/releases/download/",
+            "label": "Ccache for Windows x64",
+            "hash": "ca59770e9f46b59d6bec6e7036a17a27d601a0a5a0a721fe8e03fea734ccf732"
+        }
+    },
+    "name": "obs-studio"
+}
